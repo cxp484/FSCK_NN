@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-ort_dir="${ONNXRUNTIME_ROOT:-}"
+ort_dir="${ONNXRUNTIME_ROOT:-$script_dir/vendor/onnxruntime-osx-arm64-1.20.1}"
 if [[ -z "$ort_dir" || ! -f "$ort_dir/include/onnxruntime_c_api.h" ]]; then
     echo 'Set ONNXRUNTIME_ROOT to an extracted ONNX Runtime C SDK (include/ and lib/).' >&2
     exit 1

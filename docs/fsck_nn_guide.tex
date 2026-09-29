@@ -377,7 +377,6 @@ SDK, which is not bundled. Install the SDK matching your platform and set \textt
 which must contain \texttt{include/} and \texttt{lib/}. From
 \texttt{FSCK\_NN}, run:
 \begin{lstlisting}[language=bash]
-export ONNXRUNTIME_ROOT=/absolute/path/to/extracted/onnxruntime-sdk
 bash test/build.sh
 mkdir -p test/results/new_onnx_comparison
 test/build/compare_fsck training/runs/my_smoke/best.onnx \
@@ -389,6 +388,12 @@ The four arguments are the ONNX model, grid namelist, database root, and
 output CSV. Existing output files at the selected paths are overwritten.
 Trained checkpoints are not bundled. Run the smoke-training example first,
 or supply your own ONNX model. Training exports ONNX files automatically.
+
+The build defaults to
+\path{test/vendor/onnxruntime-osx-arm64-1.20.1}, resolved relative to
+\texttt{build.sh}, independently of the working directory. If the SDK is
+installed there, no environment variable is required. An explicitly set
+\texttt{ONNXRUNTIME\_ROOT} overrides this default.
 
 \subsection{Fortran calls to ONNX Runtime}
 The module \path{test/nn_model.f90} exposes \texttt{read\_model},

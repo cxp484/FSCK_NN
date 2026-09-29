@@ -5,7 +5,6 @@ The comparison is compiled Fortran. Python is used only to plot the output CSV.
 ## Build and run from FSCK_NN
 
 ```bash
-export ONNXRUNTIME_ROOT=/absolute/path/to/extracted/onnxruntime-sdk
 bash test/build.sh
 mkdir -p test/results/new_onnx_comparison
 test/build/compare_fsck training/runs/my_smoke/best.onnx \
@@ -21,6 +20,10 @@ python3 test/plot_results.py test/results/new_onnx_comparison/comparison.csv
 The executable takes four positional arguments: ONNX model, grid namelist,
 database root, and output CSV. Create the output directory first. Existing CSV
 and plot files at the selected paths are overwritten.
+
+The build defaults to `test/vendor/onnxruntime-osx-arm64-1.20.1`, resolved
+relative to `build.sh`, so it works from any working directory. An explicit
+`ONNXRUNTIME_ROOT` overrides this default. The SDK is not bundled in Git.
 
 Requirements for compilation: `gfortran`, a C compiler, and the ONNX Runtime
 C/C++ SDK (not bundled). This interface was tested with ONNX Runtime 1.20.1
