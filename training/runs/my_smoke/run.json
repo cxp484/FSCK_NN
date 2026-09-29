@@ -1,0 +1,85 @@
+{
+  "inputs": [
+    "P_atm",
+    "xCO2",
+    "xH2O",
+    "xCO",
+    "fv",
+    "Tgas_K",
+    "Tref_K"
+  ],
+  "outputs": [
+    "kappa_01",
+    "kappa_02",
+    "kappa_03",
+    "kappa_04",
+    "kappa_05",
+    "kappa_06",
+    "kappa_07",
+    "kappa_08",
+    "kappa_09",
+    "kappa_10",
+    "kappa_11",
+    "kappa_12",
+    "kappa_13",
+    "kappa_14",
+    "kappa_15",
+    "kappa_16",
+    "kappa_17",
+    "kappa_18",
+    "kappa_19",
+    "kappa_20",
+    "kappa_21",
+    "kappa_22",
+    "kappa_23",
+    "kappa_24",
+    "kappa_25",
+    "kappa_26",
+    "kappa_27",
+    "kappa_28",
+    "kappa_29",
+    "kappa_30",
+    "kappa_31",
+    "kappa_32"
+  ],
+  "target_transform": "log10(max(kappa,kappa_floor))",
+  "model": {
+    "width": 128,
+    "depth": 3,
+    "kappa_floor": 1e-08
+  },
+  "database": "/zpool/array01/home/cnp10/CODES/radiationDatabase/FSKTableV4",
+  "fortran_sha256": "e1c81ee0ee80d7ba7a8f376ee6dcbab8c0c84fd67c70621824f4748a1b89e7ab",
+  "pressure_folders": [
+    "01.0"
+  ],
+  "train_files": [
+    "01.0/P.01.0_CO2.0.00_H2O.0.00_CO.0.00_fv.1.E-05_k.dat",
+    "01.0/P.01.0_CO2.0.00_H2O.0.00_CO.0.00_fv.1.E-06_k.dat",
+    "01.0/P.01.0_CO2.0.00_H2O.0.00_CO.0.01_fv.0.E+00_k.dat",
+    "01.0/P.01.0_CO2.0.00_H2O.0.00_CO.0.00_fv.0.E+00_k.dat",
+    "01.0/P.01.0_CO2.0.00_H2O.0.00_CO.0.01_fv.1.E-05_k.dat"
+  ],
+  "validation_files": [
+    "01.0/P.01.0_CO2.0.00_H2O.0.00_CO.0.00_fv.1.E-07_k.dat"
+  ],
+  "settings": {
+    "database": "/home/cnp10/CODES/radiationDatabase/FSKTableV4",
+    "output": "training/runs/my_smoke",
+    "pressure": "1",
+    "limit_files": 6,
+    "epochs": 2,
+    "batch_size": 1024,
+    "chunk_files": 8,
+    "width": 128,
+    "depth": 3,
+    "learning_rate": 0.001,
+    "kappa_floor": 1e-08,
+    "validation_fraction": 0.1,
+    "seed": 42,
+    "threads": 4,
+    "device": "cpu",
+    "compiler": "gfortran",
+    "debug": false
+  }
+}

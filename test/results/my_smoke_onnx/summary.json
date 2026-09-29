@@ -1,0 +1,35 @@
+{
+  "k": {
+    "points": 4096,
+    "finite_points": 4096,
+    "nonfinite_points": 0,
+    "mae": 0.7379872668475889,
+    "rmse": 0.7762184130130587,
+    "log10_rmse_positive": 1.8285658030241025
+  },
+  "a": {
+    "points": 4096,
+    "finite_points": 4096,
+    "nonfinite_points": 0,
+    "mae": 168.34737370730454,
+    "rmse": 677.0735152194042,
+    "log10_rmse_positive": 1.1391293259719126
+  },
+  "a_monotone_nn_only": {
+    "points": 0,
+    "finite_points": 0,
+    "nonfinite_points": 0
+  },
+  "states": 128,
+  "nonmonotone_nn_states": 128,
+  "negative_a_nn_points": 1552,
+  "a_db_weighted_sum_range": [
+    0.999988083945727,
+    0.9999986363056772
+  ],
+  "a_nn_weighted_sum_range": [
+    0.5109090399221429,
+    0.5206669305555716
+  ],
+  "comparison_csv": "/Volumes/home/cnp10/CODES/OF7/FSCK_NN/test/results/my_smoke_onnx/comparison.csv"
+}

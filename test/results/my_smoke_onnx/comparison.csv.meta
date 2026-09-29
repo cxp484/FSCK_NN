@@ -1,0 +1,3 @@
+model=training/runs/my_smoke/best.onnx
+grid=test/grid.nml
+database=/Volumes/home/cnp10/CODES/radiationDatabase/FSKTableV4
