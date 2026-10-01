@@ -1,11 +1,12 @@
 # FSCK-NN documentation
 
-`fsck_nn_guide.tex` contains four sections:
+`fsck_nn_guide.tex` contains five sections:
 
 1. FSCK database filenames and binary format.
 2. Direct PyTorch training with `train_fsck.py` and supporting files.
-3. Test the NN model using Fortran and ONNX Runtime.
-4. FSCK reference-temperature theory, Planck weighting, and the a-function.
+3. A simple program to read the FSCK database and export CSV.
+4. Test the NN model using Fortran and ONNX Runtime.
+5. FSCK reference-temperature theory, Planck weighting, and the a-function.
 
 It includes TikZ diagrams and requires a LaTeX installation with TikZ, listings,
 xurl, Latin Modern, and standard math/table packages. From this folder:

@@ -39,20 +39,10 @@ The final section explains why reference temperature remains an input.
 \subsection{Directory and filename convention}
 The default database directory is
 \begin{lstlisting}
-/Volumes/home/cnp10/CODES/radiationDatabase/FSKTableV4
+<your path>/FSKTableV4
 \end{lstlisting}
 This default is defined by \texttt{DEFAULT\_DB} in
-\path{training/fsck_backend.py}:
-\begin{lstlisting}[language=Python]
-DEFAULT_DB = Path('/Volumes/home/cnp10/CODES/radiationDatabase/FSKTableV4')
-\end{lstlisting}
-The training script \path{training/train_fsck.py} imports this constant and
-uses it as the default for its command-line argument:
-\begin{lstlisting}[language=Python]
-p.add_argument('--database', type=Path, default=DEFAULT_DB)
-\end{lstlisting}
-To use another database without editing the Python files, pass
-\texttt{--database}. From the \texttt{FSCK\_NN} directory, run:
+\path{training/fsck_backend.py}. You can also specify the path in the training script \path{training/train_fsck.py} using command-line argument \texttt{--database}. From the \texttt{FSCK\_NN} directory, run:
 \begin{lstlisting}[language=bash]
 python3 training/train_fsck.py --database /path/to/FSKTableV4
 \end{lstlisting}
@@ -176,6 +166,8 @@ FSCK_NN/
     runs/                  # training output directories
   test/
     compare_fsck.f90       # NN / direct-database comparison
+    FSCK_to_csv.f90        # standalone binary database CSV export
+    build_FSCK_to_csv.sh   # build the CSV exporter without ONNX
     nn_model.f90           # Fortran ONNX interface
     onnx_bridge.c          # ONNX Runtime C API bridge
     comparison_grid.f90   # read the Fortran grid namelist
@@ -364,6 +356,49 @@ The \texttt{onnx} package is included in \path{training/requirements.txt}.
 The exports contain inference models; optimizer state and quadrature metadata
 remain in the PyTorch checkpoints.
 
+
+\section{A simple program to read the FSCK databse:}
+The standalone program \path{test/FSCK_to_csv.f90} exports stored V4 kappa
+records without interpolation. It requires only a Fortran compiler. From \texttt{FSCK\_NN}, run:
+\begin{lstlisting}[language=bash]
+bash test/build_FSCK_to_csv.sh
+test/build/FSCK_to_csv /path/to/FSKTableV4 1 5 test/fsck_1_to_5.csv
+\end{lstlisting}
+The arguments are the database root, minimum pressure, maximum pressure,
+and output CSV. Pressure limits are inclusive and in atm. Use equal limits
+for a single pressure, or \texttt{0.1 80} for the complete V4 pressure range.
+The output directory must exist and the CSV must not already exist.
+
+The exporter checks filenames on the declared V4 pressure and composition
+axes and skips missing files. It writes all 784 temperature pairs from each
+existing file, with $T_r$ varying fastest. The CSV has 39 columns:
+\begin{lstlisting}
+P,xCO2,xH2O,xCO,fv,Tg,Tr,kappa_01,...,kappa_32
+\end{lstlisting}
+Only the first 32 stored kappa values are exported; the final
+$\kappa_{\max}$ is omitted. Large pressure
+selections can produce large CSV files even though only one binary record
+is held in memory at a time.
+
+\subsection{Runtime example with 16 quadrature points}
+The sample \path{test/exampleCall16Quad.f90} shows how a radiation solver
+requests 16 quadrature values from the 32-point V4 database. Build and run
+from \texttt{FSCK\_NN}:
+\begin{lstlisting}[language=bash]
+bash test/build_exampleCall16Quad.sh
+test/build/exampleCall16Quad /path/to/FSKTableV4
+\end{lstlisting}
+The program loads the required database region once, then evaluates two
+illustrative cell states. Edit the cell properties and reference temperature
+in the source to change the example. Each runtime cell call is:
+\begin{lstlisting}[language=Fortran]
+call fsk_v4_table(cells(cell),reference,16,k,a,g,gFSK,wFSK,32)
+\end{lstlisting}
+Internally, \texttt{get\_ka} computes kappa and $a$ on the 32-point grid;
+\texttt{k\_interp} and \texttt{a\_interp} map these curves to the 16 solver
+nodes. A solver would use the 16-point weights to integrate the 16 resulting
+intensities. This example demonstrates runtime optical-property access,
+not a complete RTE solution. 
 
 \section{Test the NN model using Fortran}
 The \path{test/} directory compares NN kappa and stretching function $a$

@@ -121,3 +121,71 @@ calculated a-values are colored orange and labeled **diagnostic only**.
 
 Comparison results are generated locally and are not bundled. A smoke-trained
 model verifies the workflow; it is not a production surrogate.
+
+## Export the FSCK database to CSV
+
+`FSCK_to_csv.f90` is a separate, standalone Fortran program. It needs only
+gfortran; it does not use ONNX Runtime, OpenFOAM, or Python.
+
+From `FSCK_NN`:
+
+```bash
+bash test/build_FSCK_to_csv.sh
+
+test/build/FSCK_to_csv /path/to/FSKTableV4 1 5 test/fsck_1_to_5.csv
+```
+
+Arguments are `DATABASE_ROOT P_MIN_ATM P_MAX_ATM OUTPUT.csv`. The pressure
+interval is inclusive; limits need not be database nodes. Use `1 1` for only
+1 atm, or `0.1 80` for the full V4 pressure range. The parent output directory
+must exist, and the CSV itself must not already exist.
+
+The program checks filenames on the pressure, gas, and soot axes declared in
+V4 and exports every existing matching file. Missing combinations are skipped;
+no matches produce an error. It does not interpolate, impose a gas-fraction
+sum filter, or discover custom grids outside the V4 axes. Each file must contain
+784 records of 33 native-endian float32 values (103,488 bytes).
+
+The CSV has 39 columns:
+
+```text
+P,xCO2,xH2O,xCO,fv,Tg,Tr,kappa_01,...,kappa_32
+```
+
+Each file contributes all 784 temperature pairs, with `Tr` varying fastest.
+Pressure is in atm, gas values are mole fractions, soot is volume fraction,
+temperatures are in K, and kappas retain the database units. The final stored
+`kappa_max` value is omitted. CSV numbers preserve the stored float32 values.
+The exporter holds one record at a time; large database selections can still
+produce large CSV files. Read/write errors remove the incomplete CSV while it
+is open. Existing outputs are never overwritten.
+
+## Example: 16 quadrature points at solver runtime
+
+`exampleCall16Quad.f90` demonstrates the calls behind the radiation solver's
+V4 interface, using two illustrative cell states. It loads the database once,
+then requests 16 kappa and a-values for each cell from the in-memory table.
+
+```bash
+bash test/build_exampleCall16Quad.sh
+test/build/exampleCall16Quad /path/to/FSKTableV4
+```
+
+Only gfortran and the existing Fortran sources are needed. Edit `cells` and
+`reference%T` in the example to change the sample states. The loader bounds
+are calculated from those states; keep them within the database ranges.
+
+The database still stores 32 quadrature values. The program generates separate
+32-point database and 16-point solver grids with `quadgen2(.false.,...,2d0)`.
+At each cell it calls:
+
+```fortran
+call fsk_v4_table(cells(cell),reference,16,k,a,g,gFSK,wFSK,32)
+```
+
+Internally, `get_ka` computes the 32-point kappa and a-curves, and `k_interp`
+and `a_interp` map them to the 16 solver nodes. This is not a selection of every
+other database value. The sample applies the same `1e-9` kappa floor as the
+solver's `fsk_v4_table_nq` wrapper and prints `q, g, w, kappa, a` for both cells.
+The RTE solver integrates its 16 intensities with the **16-point weights**.
+This example demonstrates optical-property access; it does not solve the RTE.
